@@ -59,7 +59,7 @@
     .share-options { display: grid; gap: 10px; }
     .share-button { display: flex; width: 100%; min-height: 52px; align-items: center; gap: 12px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: #243b31; font: inherit; font-size: .94rem; font-weight: 700; text-align: left; text-decoration: none; cursor: pointer; transition: border-color .15s, background .15s, transform .15s; }
     .share-button:hover { transform: translateY(-1px); border-color: #9dc6aa; background: #f8fbf8; }
-    .share-button:focus-visible, .back-link:focus-visible { outline: 3px solid #81c99d; outline-offset: 3px; }
+    .share-button:focus-visible, .back-link:focus-visible, .copy-button:focus-visible { outline: 3px solid #81c99d; outline-offset: 3px; }
     .share-button.primary { justify-content: center; border-color: var(--green); background: var(--green); color: #fff; }
     .share-button.primary:hover { border-color: var(--green-dark); background: var(--green-dark); }
     .icon { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border-radius: 9px; background: #eff6ef; color: var(--green); font-size: 1rem; }
@@ -122,14 +122,14 @@
             <span class="icon" aria-hidden="true">↗</span>
             <span>Compartilhar</span>
           </button>
-          <a class="share-button" id="whatsapp-link" href="#" target="_blank" rel="noopener noreferrer">
+          <button class="share-button" id="whatsapp-button" type="button">
             <span class="icon" aria-hidden="true">✆</span>
             <span>Enviar pelo WhatsApp</span>
-          </a>
-          <a class="share-button" id="email-link" href="#">
+          </button>
+          <button class="share-button" id="email-button" type="button">
             <span class="icon" aria-hidden="true">✉</span>
             <span>Enviar por e-mail</span>
-          </a>
+          </button>
         </div>
         <div class="divider">ou copie o link</div>
         <label class="link-label" for="share-url">Link da página</label>
@@ -148,44 +148,38 @@
   <script>
     (() => {
       const pageUrl = window.location.href;
-      const shareTitle = 'EcoVida Conecta';
-      const shareText = 'Conheça a EcoVida Conecta: um espaço para compartilhar ideias e iniciativas sustentáveis. Vamos fazer parte dessa mudança?';
       const urlInput = document.getElementById('share-url');
       const status = document.getElementById('share-status');
-      const nativeShare = document.getElementById('native-share');
-      const copyButton = document.getElementById('copy-link');
 
       urlInput.value = pageUrl;
-      document.getElementById('whatsapp-link').href = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${pageUrl}`)}`;
-      document.getElementById('email-link').href = `mailto:?subject=${encodeURIComponent(`Conheça a ${shareTitle}`)}&body=${encodeURIComponent(`${shareText}\n\n${pageUrl}`)}`;
 
-      if (!navigator.share) {
-        nativeShare.hidden = true;
-      } else {
-        nativeShare.addEventListener('click', async () => {
-          try {
-            await navigator.share({ title: shareTitle, text: shareText, url: pageUrl });
-            status.textContent = 'Convite compartilhado. Obrigado por espalhar essa ideia!';
-          } catch (error) {
-            if (error.name !== 'AbortError') status.textContent = 'Não foi possível compartilhar agora. Tente copiar o link.';
-          }
-        });
-      }
+      // Ações simuladas para a apresentação: nenhum aplicativo externo é aberto.
+      document.getElementById('native-share').addEventListener('click', () => {
+        status.textContent = 'Demonstração: convite pronto para compartilhar. Nenhum aplicativo foi aberto.';
+      });
 
-      copyButton.addEventListener('click', async () => {
+      document.getElementById('whatsapp-button').addEventListener('click', () => {
+        status.textContent = 'Demonstração: convite preparado para o WhatsApp. Nenhum aplicativo foi aberto.';
+      });
+
+      document.getElementById('email-button').addEventListener('click', () => {
+        status.textContent = 'Demonstração: convite preparado para e-mail. Nenhum aplicativo foi aberto.';
+      });
+
+      document.getElementById('copy-link').addEventListener('click', async () => {
         try {
           if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(pageUrl);
+            status.textContent = 'Link copiado! Agora é só enviar para alguém. 🌱';
           } else {
             urlInput.focus();
             urlInput.select();
-            if (!document.execCommand('copy')) throw new Error('Cópia indisponível');
+            status.textContent = 'Link selecionado. Use Ctrl+C ou ⌘+C para copiá-lo.';
           }
-          status.textContent = 'Link copiado! Agora é só enviar para alguém. 🌱';
         } catch {
           urlInput.focus();
           urlInput.select();
-          status.textContent = 'Selecione e copie o link para compartilhar.';
+          status.textContent = 'Link selecionado. Use Ctrl+C ou ⌘+C para copiá-lo.';
         }
       });
     })();
